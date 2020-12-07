@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import math
 import glob
 from tqdm import tqdm
 from PIL import Image
@@ -27,17 +28,16 @@ def parse_args():
 def preprocess(img, size):
     w, h = img.size
 
-    # Resize max dim to target size
+    # Resize min dim to target size
     new_w, new_h = (
-        (size, round(h * (size / w))) if w >= h else (round(w * (size / h)), size)
+        (size, round(h * (size / w))) if w <= h else (round(w * (size / h)), size)
     )
-    img = img.resize((new_w, new_h))
-
+    img = img.resize((new_w, new_h), Image.ANTIALIAS)
     # Center crop to target size
-    left = (new_w - size) / 2
-    top = (new_h - size) / 2
-    right = (new_w + size) / 2
-    bottom = (new_h + size) / 2
+    left = math.ceil((new_w - size) / 2)
+    top = math.ceil((new_h - size) / 2)
+    right = math.ceil((new_w + size) / 2)
+    bottom = math.ceil((new_h + size) / 2)
     img = img.crop((left, top, right, bottom))
     return img
 
@@ -63,7 +63,7 @@ def process_images():
         if type_ == "jpeg":
             file_name = os.path.splitext(os.path.split(input_path)[1])[0] + ".JPEG"
             output_path = os.path.join(parent_folder, file_name)
-            img.save(output_path)
+            img.save(output_path, quality=100, subsampling=0)
         elif type_ == "npz":  # Convert to numpy and save to npz
             img_np = np.array(img)
             file_name = os.path.splitext(os.path.split(input_path)[1])[0] + ".npz"
