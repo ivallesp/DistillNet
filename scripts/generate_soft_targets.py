@@ -111,21 +111,6 @@ def predict():
     print(out)
     # preds = model.predict(idg.flow_from_directory(dataset_path))
 
-def predict_2():
-    args = parse_args()
-    model_name = args.model_name
-    dataset_path = args.dataset_path
-    Model, preprocess_input, size = get_model_artifacts(model_name)
-    images = []
-    targets = []
-    for img_path in glob.glob(os.path.join(dataset_path, "*", "*.JPEG")):
-        img = image.load_img(img_path, target_size=(224, 224))
-        x = image.img_to_array(img)
-        x = np.expand_dims(x, axis=0)
-        x = preprocess_input(x)
-        images.append(x)
-        tg = int(os.path.split(os.path.split(img_path)[0])[1])-1
-        targets.apend(tg)
 
 if __name__ == "__main__":
     predict()
