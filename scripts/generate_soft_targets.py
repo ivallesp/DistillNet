@@ -1,5 +1,7 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 import numpy as np
 import glob
 from tqdm import tqdm
@@ -14,7 +16,8 @@ from functools import partial
 import matplotlib.pyplot as plt
 import time
 import tensorflow as tf
-tf.get_logger().setLevel('INFO')
+
+tf.get_logger().setLevel("INFO")
 
 
 def parse_args():
@@ -78,28 +81,28 @@ def get_model_artifacts(model_name):
         # loss: 0.8362 - accuracy: 0.8044 @ 299 OK
         from keras.applications.inception_resnet_v2 import InceptionResNetV2 as Model
         from keras.applications.inception_resnet_v2 import preprocess_input
-        size=299
+        size = 299
     elif model_name == "nasnetlarge":
         # loss: 0.7973 - accuracy: 0.8244 OK
         from keras.applications.nasnet import NASNetLarge as Model
         from keras.applications.nasnet import preprocess_input
-        size=331
+        size = 331
     elif model_name == "xception":
         # loss: 0.9050 - accuracy: 0.7892 OK
         from keras.applications.xception import Xception as Model
         from keras.applications.xception import preprocess_input
-        size=299
+        size = 299
     elif model_name == "efficientnetb7":
         # loss: 0.9824 - accuracy: 0.7788 OK
         from tensorflow.keras.applications.efficientnet import EfficientNetB7 as Model
         from tensorflow.keras.applications.efficientnet import preprocess_input
-        size=256
+        size = 256
     else:
         raise ValueError(f"Model name '{model_name}' not recognized as a valid name")
     return Model, preprocess_input, size
 
 
-def predict():
+def evaluate():
     args = parse_args()
     model_name = args.model_name
     dataset_path = args.dataset_path
@@ -107,9 +110,37 @@ def predict():
     idg = ImageDataGenerator(preprocessing_function=preprocess_input)
     model = Model(weights="imagenet")
     model.compile("adam", "categorical_crossentropy", metrics=["accuracy"])
-    out = model.evaluate(idg.flow_from_directory(dataset_path, target_size=(size, size)))
+    out = model.evaluate(
+        idg.flow_from_directory(dataset_path, target_size=(size, size))
+    )
     print(out)
-    # preds = model.predict(idg.flow_from_directory(dataset_path))
+
+
+def predict():
+    args = parse_args()
+    model_name = args.model_name
+    dataset_path = args.dataset_path
+
+    # Load model and get logits
+    Model, preprocess_input, size = get_model_artifacts(model_name)
+    idg = ImageDataGenerator(preprocessing_function=preprocess_input)
+    model = Model(weights="imagenet", classifier_activation=None)
+    flow = idg.flow_from_directory(
+        dataset_path, shuffle=False, target_size=(size, size)
+    )
+    preds = model.predict(flow, verbose=1)
+
+    # Calculate accuracy for double checking
+    targets = np.array(list(map(lambda x: int(x.split("/")[0]), flow.filenames)))
+    y = preds.argmax(axis=1)
+    print(f"Accuracy = {np.mean(targets==y)}")
+
+    # Save paths and predictions into an npz file
+    dataset_dir_name = os.path.split(dataset_path)[1]
+    output_filename = f"soft_targets-{model_name}-{dataset_dir_name}.npz"
+    output_path = os.path.join(os.path.split(dataset_path)[0], output_filename)
+    np.savez(output_path, paths=flow.filenames, preds=preds)
+    print(f"Results saved in '{output_path}'")
 
 
 if __name__ == "__main__":
