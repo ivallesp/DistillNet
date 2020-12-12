@@ -2,6 +2,7 @@ import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
+import math
 import numpy as np
 import glob
 from tqdm import tqdm
@@ -120,26 +121,36 @@ def predict():
     args = parse_args()
     model_name = args.model_name
     dataset_path = args.dataset_path
-
+    batch_size=32
     # Load model and get logits
     Model, preprocess_input, size = get_model_artifacts(model_name)
     idg = ImageDataGenerator(preprocessing_function=preprocess_input)
     model = Model(weights="imagenet", classifier_activation=None)
     flow = idg.flow_from_directory(
-        dataset_path, shuffle=False, target_size=(size, size)
+        dataset_path, shuffle=False, target_size=(size, size), batch_size=batch_size
     )
-    preds = model.predict(flow, verbose=1)
+    # Generate predictions
+    predictions = []
+    n_batches = 0
+    for x, y in tqdm(flow):
+        preds = model.predict(x, verbose=0)
+        predictions.append(preds)
+        n_batches += 1
+        if n_batches >= math.ceil(len(flow.filenames) / batch_size):
+            # Manually break the loop as the generator loops indefinitely
+            break
+    predictions = np.concatenate(predictions)[:len(flow.filenames)]
 
     # Calculate accuracy for double checking
     targets = np.array(list(map(lambda x: int(x.split("/")[0]), flow.filenames)))
-    y = preds.argmax(axis=1)
+    y = predictions.argmax(axis=1)
     print(f"Accuracy = {np.mean(targets==y)}")
 
     # Save paths and predictions into an npz file
     dataset_dir_name = os.path.split(dataset_path)[1]
     output_filename = f"soft_targets-{model_name}-{dataset_dir_name}.npz"
     output_path = os.path.join(os.path.split(dataset_path)[0], output_filename)
-    np.savez(output_path, paths=flow.filenames, preds=preds)
+    np.savez(output_path, paths=flow.filenames, preds=predictions)
     print(f"Results saved in '{output_path}'")
 
 
