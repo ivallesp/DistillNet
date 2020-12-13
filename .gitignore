@@ -6,3 +6,6 @@
 
 # Notebooks folder
 notebooks
+
+# Python garbage
+*.pyc
