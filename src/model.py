@@ -4,6 +4,7 @@ from tqdm import tqdm
 from src.paths import get_dataset_path
 from scipy.optimize import bisect
 import os
+from src.utils import to_int
 
 
 MODELS_CATALOG = [
@@ -119,7 +120,7 @@ def softmax(x, T=1):
 
 
 def print_soft_targets_accuracy(soft_targets, filepaths):
-    hard_targets = np.array([int(os.path.split(fp)[0]) for fp in filepaths])
+    hard_targets = np.array([to_int(os.path.split(fp)[0]) for fp in filepaths])
     soft_targets_argmax = soft_targets.argmax(axis=1)
     accuracy = (soft_targets_argmax == hard_targets).mean()
     print(f"Soft-targets accuracy={accuracy}")
@@ -224,11 +225,12 @@ def get_indices_from_keras_generator(gen, batch_size):
     return indices, filenames
 
 
-def get_data_generator_with_soft_targets(gen, soft_targets):
+def get_data_generator_with_soft_targets(gen, soft_targets, unlabeled):
     """
     Given a keras data generator, switches the hard targets by soft-targets.
     :param gen: keras generator.
     :param soft_targets: soft_targets dict to use for replacing the targets
+    :param unlabeled: if set to true, no cross checks with the paths are performed.
     :return: generator
     """
     # Check if the filenames in the generator are aligned with the ones in the soft
@@ -237,9 +239,10 @@ def get_data_generator_with_soft_targets(gen, soft_targets):
     for x, y in gen:
         indices, filepaths = get_indices_from_keras_generator(gen, x.shape[0])
         soft_targets_batch = soft_targets["soft_targets"][indices]
-        # Assure labels are in line with indices, through filepaths.
-        labels = np.argmax(y, axis=1)
-        labels_fn = [int(x.split("/")[0]) for x in filepaths]
-        assert labels.tolist() == labels_fn
+        if not unlabeled:
+            # Assure labels are in line with indices, through filepaths.
+            labels = np.argmax(y, axis=1)
+            labels_fn = [to_int(x.split("/")[0]) for x in filepaths]
+            assert labels.tolist() == labels_fn
         # Return y if needed
         yield x, soft_targets_batch
