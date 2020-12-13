@@ -9,3 +9,7 @@ notebooks
 
 # Python garbage
 *.pyc
+
+# Models path
+models
+model
