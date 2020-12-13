@@ -117,11 +117,18 @@ def evaluate():
     print(out)
 
 
+def to_int(x):
+    try:
+        return int(x)
+    except ValueError:
+        return -1
+
+
 def predict():
     args = parse_args()
     model_name = args.model_name
     dataset_path = args.dataset_path
-    batch_size=32
+    batch_size = 32
     # Load model and get logits
     Model, preprocess_input, size = get_model_artifacts(model_name)
     idg = ImageDataGenerator(preprocessing_function=preprocess_input)
@@ -139,10 +146,10 @@ def predict():
         if n_batches >= math.ceil(len(flow.filenames) / batch_size):
             # Manually break the loop as the generator loops indefinitely
             break
-    predictions = np.concatenate(predictions)[:len(flow.filenames)]
+    predictions = np.concatenate(predictions)[: len(flow.filenames)]
 
     # Calculate accuracy for double checking
-    targets = np.array(list(map(lambda x: int(x.split("/")[0]), flow.filenames)))
+    targets = np.array(list(map(lambda x: to_int(x.split("/")[0]), flow.filenames)))
     y = predictions.argmax(axis=1)
     print(f"Accuracy = {np.mean(targets==y)}")
 
