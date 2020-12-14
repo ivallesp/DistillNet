@@ -15,13 +15,13 @@ from src.paths import get_logs_path, get_model_path
 import tensorflow as tf
 
 
-ALIAS = "baseline-20201213"
-T = 1.2535  # Temperature calculated to match distribution
+ALIAS = "baseline-test-20201213"
+T = 1.1757238507263992  # Temperature calculated to match distribution
 validation_dataset_path = "/mnt/FLASH/datasets/imagenet/validation_256"
 
-transfer_dataset_path = "/mnt/FLASH/datasets/imagenet/train_256"
-transfer_dataset_alias = "train"
-unlabeled = False
+transfer_dataset_path = "/mnt/FLASH/datasets/imagenet/test_256"
+transfer_dataset_alias = "test"
+unlabeled = True
 
 batch_size = 35
 prob_norm = 0.35
@@ -65,7 +65,7 @@ def main():
     )
 
     model.compile(
-        Adam(learning_rate=1e-4), "categorical_crossentropy", metrics=["accuracy"]
+        Adam(learning_rate=1e-5), "categorical_crossentropy", metrics=["accuracy"]
     )
 
     print("Running initial validation...")
@@ -84,7 +84,7 @@ def main():
         gen_train,
         steps_per_epoch=math.ceil(flow_train.samples / flow_train.batch_size),
         validation_data=flow_val,
-        epochs=100,
+        epochs=1000,
         callbacks=[tb_callback, cp_callback],
     )
 
