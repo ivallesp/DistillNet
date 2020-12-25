@@ -2,7 +2,7 @@ import os
 
 
 def get_dataset_path():
-    return os.path.join("/mnt", "FLASH", "datasets", "imagenet")
+    return os.path.join("data")
 
 
 def get_model_path(alias):

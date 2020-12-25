@@ -17,9 +17,9 @@ import tensorflow as tf
 
 ALIAS = "baseline-test-20201213"
 T = 1.1757238507263992  # Temperature calculated to match distribution
-validation_dataset_path = "/mnt/FLASH/datasets/imagenet/validation_256"
+validation_dataset_path = "data/validation_256"
 
-transfer_dataset_path = "/mnt/FLASH/datasets/imagenet/test_256"
+transfer_dataset_path = "data/test_256"
 transfer_dataset_alias = "test"
 unlabeled = True
 

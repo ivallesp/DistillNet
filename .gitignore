@@ -13,3 +13,6 @@ notebooks
 # Models path
 models
 model
+
+# Data path
+data
