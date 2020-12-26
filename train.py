@@ -12,10 +12,12 @@ from src.model import (
     MODELS_CATALOG,
 )
 from src.paths import get_logs_path, get_model_path, get_dataset_path
+from src.utils import set_seed
 import tensorflow as tf
 
 BATCH_SIZE = 35
 PROB_NORM = 0.35
+
 
 def parse_args():
     argparser = argparse.ArgumentParser()
@@ -42,6 +44,9 @@ def parse_args():
 
 
 def train_model(base_model_name, teachers_combination_method, random_seed):
+    # Set the random seed
+    set_seed(random_seed)
+
     # Load base model
     get_model, preprocess_input, size, T = get_model_artifacts("mobilenetv2")
     model = get_model(classifier_activation="linear", weights="imagenet")
