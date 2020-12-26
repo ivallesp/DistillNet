@@ -16,7 +16,6 @@ import tensorflow as tf
 
 
 ALIAS = "baseline-test-20201213"
-T = 1.1757238507263992  # Temperature calculated to match distribution
 validation_dataset_path = "data/validation_256"
 
 transfer_dataset_path = "data/test_256"
@@ -30,7 +29,7 @@ base_model_name = "mobilenetv2"
 
 def main():
     # Load base model
-    get_model, preprocess_input, size = get_model_artifacts("mobilenetv2")
+    get_model, preprocess_input, size, T = get_model_artifacts("mobilenetv2")
     model = get_model(classifier_activation="linear", weights="imagenet")
 
     # Warm last model layer

@@ -1,6 +1,5 @@
 import numpy as np
 from glob import glob
-from tqdm import tqdm
 from src.paths import get_dataset_path
 from scipy.optimize import bisect
 import os
@@ -22,77 +21,74 @@ MODELS_CATALOG = [
 
 
 def get_model_artifacts(model_name):
+    """
+    Warning, the temperature harcoded in this function corresponds to the normalization
+    of 0.35. If the normalization constant changes, the temperature must be recomputed.
+    """
     if model_name == "mobilenet":
         # loss: 1.1488 - accuracy: 0.7172 - OK
         from keras.applications.mobilenet import MobileNet as Model
         from keras.applications.mobilenet import preprocess_input
-
+        temperature = 2.1864
         size = 256
     elif model_name == "mobilenetv2":
         # loss: 1.3987 - accuracy: 0.7298 - OK
         from keras.applications.mobilenet_v2 import MobileNetV2 as Model
         from keras.applications.mobilenet_v2 import preprocess_input
-
+        temperature = 1.1956
         size = 256
     elif model_name == "densenet121":
         # loss: 0.9733 - accuracy: 0.7544 OK
         from keras.applications.densenet import DenseNet121 as Model
         from keras.applications.densenet import preprocess_input
-
+        temperature = 1.9816
         size = 256
     elif model_name == "densenet169":
         # loss: 0.9287 - accuracy: 0.7650 OK
         from keras.applications.densenet import DenseNet169 as Model
         from keras.applications.densenet import preprocess_input
-
+        temperature = 2.0492
         size = 256
     elif model_name == "densenet201":
         # loss: 0.8892 - accuracy: 0.7779 OK
         from keras.applications.densenet import DenseNet201 as Model
         from keras.applications.densenet import preprocess_input
-
+        temperature = 1.9561
         size = 256
     elif model_name == "resnet50":
         # loss: 0.9786 - accuracy: 0.7555 OK
         from keras.applications.resnet50 import ResNet50 as Model
         from keras.applications.resnet50 import preprocess_input
-
-        size = 256
-    elif model_name == "resnet152v2":
-        # loss: 1.1993 - accuracy: 0.7502 NOPE
-        # resnet v2 does not work well
-        from keras.applications.resnet_v2 import ResNet152V2 as Model
-        from keras.applications.resnet_v2 import preprocess_input
-
+        temperature = 2.2800
         size = 256
     elif model_name == "inceptionresnetv2":
         # loss: 1.1852 - accuracy: 0.7844 @ 256
         # loss: 0.8362 - accuracy: 0.8044 @ 299 OK
         from keras.applications.inception_resnet_v2 import InceptionResNetV2 as Model
         from keras.applications.inception_resnet_v2 import preprocess_input
-
+        temperature = 1.4743
         size = 299
     elif model_name == "nasnetlarge":
         # loss: 0.7973 - accuracy: 0.8244 OK
         from keras.applications.nasnet import NASNetLarge as Model
         from keras.applications.nasnet import preprocess_input
-
+        temperature = 1.4179
         size = 331
     elif model_name == "xception":
         # loss: 0.9050 - accuracy: 0.7892 OK
         from keras.applications.xception import Xception as Model
         from keras.applications.xception import preprocess_input
-
+        temperature = 1.4850
         size = 299
     elif model_name == "efficientnetb7":
         # loss: 0.9824 - accuracy: 0.7788 OK
         from tensorflow.keras.applications.efficientnet import EfficientNetB7 as Model
         from tensorflow.keras.applications.efficientnet import preprocess_input
-
+        temperature = 1.3969
         size = 256
     else:
         raise ValueError(f"Model name '{model_name}' not recognized as a valid name")
-    return Model, preprocess_input, size
+    return Model, preprocess_input, size, temperature
 
 
 def get_soft_target_path(model_name, dataset):
