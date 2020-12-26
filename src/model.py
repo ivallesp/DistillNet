@@ -17,6 +17,7 @@ MODELS_CATALOG = [
     "nasnetlarge",
     "xception",
     "efficientnetb7",
+    "efficientnetb0",
 ]
 
 
@@ -95,6 +96,13 @@ def get_model_artifacts(model_name):
         from tensorflow.keras.applications.efficientnet import preprocess_input
 
         temperature = 1.3969
+        size = 256
+    elif model_name == "efficientnetb0":
+        # accuracy: - OK
+        from tensorflow.keras.applications.efficientnet import EfficientNetB0 as Model
+        from tensorflow.keras.applications.efficientnet import preprocess_input
+
+        temperature = 1.3880
         size = 256
     else:
         raise ValueError(f"Model name '{model_name}' not recognized as a valid name")
