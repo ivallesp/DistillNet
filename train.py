@@ -104,7 +104,7 @@ def train_model(base_model_name, teachers_combination_method, random_seed):
     set_seed(random_seed)
 
     # Load base model
-    get_model, preprocess_input, size, T = get_model_artifacts("mobilenetv2")
+    get_model, preprocess_input, size, T = get_model_artifacts(base_model_name)
     model = get_model(classifier_activation="linear", weights="imagenet")
 
     # Build input data paths
