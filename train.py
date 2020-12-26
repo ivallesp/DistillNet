@@ -11,19 +11,15 @@ from src.model import (
     get_data_generator_with_soft_targets,
     MODELS_CATALOG,
 )
-from src.paths import get_logs_path, get_model_path
+from src.paths import get_logs_path, get_model_path, get_dataset_path
 import tensorflow as tf
 
 
 ALIAS = "baseline-test-20201213"
-validation_dataset_path = "data/validation_256"
 
-transfer_dataset_path = "data/test_256"
-transfer_dataset_alias = "test"
-unlabeled = True
 
-batch_size = 35
-prob_norm = 0.35
+BATCH_SIZE = 35
+PROB_NORM = 0.35
 base_model_name = "mobilenetv2"
 
 
@@ -32,6 +28,13 @@ def main():
     get_model, preprocess_input, size, T = get_model_artifacts("mobilenetv2")
     model = get_model(classifier_activation="linear", weights="imagenet")
 
+    # Build input data paths
+    data_path = get_dataset_path()
+    validation_dataset_path = os.path.join(data_path, f"validation_{size}")
+    transfer_dataset_path = os.path.join(data_path, f"test_{size}")
+    transfer_dataset_alias = os.path.split(transfer_dataset_path)[1].split("_")[0]
+    unlabeled = True if transfer_dataset_alias == "test" else False
+
     # Warm last model layer
     input_ = model.input
     output = keras.backend.softmax(model.output / T)
@@ -39,7 +42,7 @@ def main():
 
     # Build soft-targets
     soft_targets = get_combined_soft_targets(
-        MODELS_CATALOG, transfer_dataset_alias, prob_norm
+        models=MODELS_CATALOG, dataset=transfer_dataset_alias, prob1=PROB_NORM
     )
 
     # Build train data generator
@@ -48,7 +51,7 @@ def main():
         transfer_dataset_path,
         shuffle=True,
         target_size=(size, size),
-        batch_size=batch_size,
+        BATCH_SIZE=BATCH_SIZE,
     )
     gen_train = get_data_generator_with_soft_targets(
         flow_train, soft_targets, unlabeled
@@ -60,7 +63,7 @@ def main():
         validation_dataset_path,
         shuffle=True,
         target_size=(size, size),
-        batch_size=batch_size,
+        BATCH_SIZE=BATCH_SIZE,
     )
 
     model.compile(
@@ -81,7 +84,7 @@ def main():
     )
     model.fit(
         gen_train,
-        steps_per_epoch=math.ceil(flow_train.samples / flow_train.batch_size),
+        steps_per_epoch=math.ceil(flow_train.samples / flow_train.BATCH_SIZE),
         validation_data=flow_val,
         epochs=1000,
         callbacks=[tb_callback, cp_callback],
