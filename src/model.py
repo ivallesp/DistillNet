@@ -29,36 +29,42 @@ def get_model_artifacts(model_name):
         # loss: 1.1488 - accuracy: 0.7172 - OK
         from keras.applications.mobilenet import MobileNet as Model
         from keras.applications.mobilenet import preprocess_input
+
         temperature = 2.1864
         size = 256
     elif model_name == "mobilenetv2":
         # loss: 1.3987 - accuracy: 0.7298 - OK
         from keras.applications.mobilenet_v2 import MobileNetV2 as Model
         from keras.applications.mobilenet_v2 import preprocess_input
+
         temperature = 1.1956
         size = 256
     elif model_name == "densenet121":
         # loss: 0.9733 - accuracy: 0.7544 OK
         from keras.applications.densenet import DenseNet121 as Model
         from keras.applications.densenet import preprocess_input
+
         temperature = 1.9816
         size = 256
     elif model_name == "densenet169":
         # loss: 0.9287 - accuracy: 0.7650 OK
         from keras.applications.densenet import DenseNet169 as Model
         from keras.applications.densenet import preprocess_input
+
         temperature = 2.0492
         size = 256
     elif model_name == "densenet201":
         # loss: 0.8892 - accuracy: 0.7779 OK
         from keras.applications.densenet import DenseNet201 as Model
         from keras.applications.densenet import preprocess_input
+
         temperature = 1.9561
         size = 256
     elif model_name == "resnet50":
         # loss: 0.9786 - accuracy: 0.7555 OK
         from keras.applications.resnet50 import ResNet50 as Model
         from keras.applications.resnet50 import preprocess_input
+
         temperature = 2.2800
         size = 256
     elif model_name == "inceptionresnetv2":
@@ -66,24 +72,28 @@ def get_model_artifacts(model_name):
         # loss: 0.8362 - accuracy: 0.8044 @ 299 OK
         from keras.applications.inception_resnet_v2 import InceptionResNetV2 as Model
         from keras.applications.inception_resnet_v2 import preprocess_input
+
         temperature = 1.4743
         size = 299
     elif model_name == "nasnetlarge":
         # loss: 0.7973 - accuracy: 0.8244 OK
         from keras.applications.nasnet import NASNetLarge as Model
         from keras.applications.nasnet import preprocess_input
+
         temperature = 1.4179
         size = 331
     elif model_name == "xception":
         # loss: 0.9050 - accuracy: 0.7892 OK
         from keras.applications.xception import Xception as Model
         from keras.applications.xception import preprocess_input
+
         temperature = 1.4850
         size = 299
     elif model_name == "efficientnetb7":
         # loss: 0.9824 - accuracy: 0.7788 OK
         from tensorflow.keras.applications.efficientnet import EfficientNetB7 as Model
         from tensorflow.keras.applications.efficientnet import preprocess_input
+
         temperature = 1.3969
         size = 256
     else:
@@ -149,6 +159,41 @@ def get_soft_targets(dataset, model_name, p):
     return data
 
 
+def get_combined_soft_targets(models, dataset, prob1, method):
+    soft_targets = []
+    filepaths_prev = None
+    for model in models:
+        soft_target = get_soft_targets(dataset, model, prob1)
+        soft_targets += [soft_target["soft_targets"][:, :, None]]
+        if filepaths_prev is not None:
+            assert (filepaths_prev == soft_targets["filepaths"]).all()
+    soft_targets = np.concatenate(soft_targets, axis=2)
+    print(f"Combining {len(models)} models with '{method}' method...")
+    if method == "mean":
+        preds_comb = np.mean(soft_targets, axis=2)
+    elif method == "median":
+        preds_comb = np.median(soft_targets, axis=2)
+        preds_comb = preds_comb / preds_comb.sum(axis=1, keepdims=True)  # Renormalize
+    elif method == "random":
+        preds_comb = []
+        for i in range(soft_targets.shape[0]):  # Get random teacher at every instance
+            idx = np.random.randint(0, len(models))
+            preds_comb.append(soft_targets[[i], :, idx])
+        preds_comb = np.concatenate(preds_comb, axis=0)
+
+    filepaths = soft_target["filepaths"]
+    accuracy = print_soft_targets_accuracy(preds_comb, filepaths)
+    data = {
+        "model_name": f"combined_soft_targets_{method}",
+        "dataset": dataset,
+        "temperature": None,
+        "accuracy": accuracy,
+        "filepaths": filepaths,
+        "soft_targets": preds_comb,
+    }
+    return data
+
+
 def normalize_soft_targets_by_p1(logits, p, sample_size=50000):
     # Calculate soft-targets from logits using softmax w/ temperature
     print("Calculating T using bisection method...")
@@ -181,28 +226,6 @@ def normalize_soft_targets_by_top5(logits, p, sample_size=50000):
     print(f"Found T={temperature}")
     probs = softmax(logits, T=temperature)
     return probs, temperature
-
-
-def get_combined_soft_targets(models, dataset, prob1):
-    preds_comb = 0
-    for model in models:
-        soft_targets = get_soft_targets(dataset, model, prob1)
-        preds_comb += soft_targets["soft_targets"]
-
-    print(f"Combining {len(models)} models...")
-
-    preds_comb /= len(models)
-    filepaths = soft_targets["filepaths"]
-    accuracy = print_soft_targets_accuracy(preds_comb, filepaths)
-    data = {
-        "model_name": "combined_soft_targets",
-        "dataset": soft_targets["dataset"],
-        "temperature": None,
-        "accuracy": accuracy,
-        "filepaths": filepaths,
-        "soft_targets": preds_comb,
-    }
-    return data
 
 
 def get_indices_from_keras_generator(gen, batch_size):

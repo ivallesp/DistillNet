@@ -14,11 +14,8 @@ from src.model import (
 from src.paths import get_logs_path, get_model_path, get_dataset_path
 import tensorflow as tf
 
-
 BATCH_SIZE = 35
 PROB_NORM = 0.35
-base_model_name = "mobilenetv2"
-
 
 def parse_args():
     argparser = argparse.ArgumentParser()
@@ -66,7 +63,10 @@ def train_model(base_model_name, teachers_combination_method, random_seed):
 
     # Build soft-targets
     soft_targets = get_combined_soft_targets(
-        models=MODELS_CATALOG, dataset=transfer_dataset_alias, prob1=PROB_NORM
+        models=MODELS_CATALOG,
+        dataset=transfer_dataset_alias,
+        prob1=PROB_NORM,
+        method=teachers_combination_method,
     )
 
     # Build train data generator
