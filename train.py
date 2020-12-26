@@ -25,12 +25,14 @@ def parse_args():
         "-b",
         "--base-model",
         required=True,
+        type=str,
         help="Name of the base model. Allowed names: {MODEL_CATALOG}.",
     )
     argparser.add_argument(
         "-t",
         "--teachers-combination-method",
         required=True,
+        type=str,
         help="Method used to combine the teachers. Allowed values: "
         "'mean', 'median', 'random'.",
     )
@@ -38,6 +40,7 @@ def parse_args():
         "-r",
         "--random-seed",
         required=True,
+        type=int,
         help="Random seed used for the random processes involved.",
     )
     return argparser.parse_args()
