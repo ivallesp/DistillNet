@@ -199,7 +199,7 @@ def train_model(base_model_name, teachers_combination_method, random_seed):
             gen_train,
             steps_per_epoch=steps_per_epoch,
             validation_data=flow_val,
-            epochs=1000,
+            epochs=100,
             callbacks=[tb_callback, cp_callback],
         )
 
