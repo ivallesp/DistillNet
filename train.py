@@ -126,7 +126,7 @@ def train_model(base_model_name, teachers_combination_method, random_seed):
 
     # Compile the model
     model.compile(
-        Adam(learning_rate=1e-5),
+        Adam(learning_rate=1e-6),
         "categorical_crossentropy",
         metrics=["accuracy", top5_acc],
     )
