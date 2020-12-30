@@ -179,11 +179,14 @@ def train_model(base_model_name, teachers_combination_method, random_seed):
                 initial_epoch=epoch,
                 callbacks=[tb_callback, cp_callback],
             )
+            # Manually close and delete the generator after every epoch. Mem Leakage
+            gen_train.close()
+            del gen_train
+
         # Manually close the writer
         tb_callback._pop_writer()
         if tb_callback._is_tracing:
             tb_callback._stop_trace()
-
         tb_callback._close_writers()
         tb_callback._delete_tmp_write_dir()
     else:
