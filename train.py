@@ -43,13 +43,14 @@ def get_training_generator(
     size,
     teachers_combination_method,
     batch_size,
+    models=MODELS_CATALOG,
 ):
     transfer_dataset_alias = os.path.split(transfer_dataset_path)[1].split("_")[0]
     unlabeled = True if transfer_dataset_alias == "test" else False
 
     # Build soft-targets
     soft_targets = get_combined_soft_targets(
-        models=MODELS_CATALOG,
+        models=models,
         dataset=transfer_dataset_alias,
         prob1=PROB_NORM,
         method=teachers_combination_method,
@@ -82,6 +83,13 @@ def parse_args():
         help="Name of the base model. Allowed names: {MODEL_CATALOG}.",
     )
     argparser.add_argument(
+        "-s",
+        "--teachers",
+        required=True,
+        type=str,
+        help="Teachers to use. Allowed values: 'all', 'best'.",
+    )
+    argparser.add_argument(
         "-t",
         "--teachers-combination-method",
         required=True,
@@ -99,9 +107,23 @@ def parse_args():
     return argparser.parse_args()
 
 
-def train_model(base_model_name, teachers_combination_method, random_seed):
+def train_model(base_model_name, teachers, teachers_combination_method, random_seed):
     # Set the random seed
     set_seed(random_seed)
+
+    if teachers == "all":
+        teachers = MODELS_CATALOG
+        # Alias name generation
+        model_alias = f"{base_model_name}-{teachers_combination_method}-{random_seed}"
+    elif teachers == "best":
+        teachers = ["nasnetlarge"]
+        # Alias name generation
+        teachers_combination_method = "mean"
+        model_alias = f"{base_model_name}-best-{random_seed}"
+    else:
+        raise ValueError(
+            f"The value of the teachers parameter is invalid: '{teachers}'. Valid names are 'best' or 'all'"
+        )
 
     # Load base model
     get_model, preprocess_input, size, T = get_model_artifacts(base_model_name)
@@ -111,9 +133,6 @@ def train_model(base_model_name, teachers_combination_method, random_seed):
     data_path = get_dataset_path()
     validation_dataset_path = os.path.join(data_path, f"validation_{size}")
     transfer_dataset_path = os.path.join(data_path, f"test_{size}")
-
-    # Alias name generation
-    model_alias = f"{base_model_name}-{teachers_combination_method}-{random_seed}"
 
     # Warm last model layer
     input_ = model.input
@@ -170,6 +189,7 @@ def train_model(base_model_name, teachers_combination_method, random_seed):
                 size=size,
                 teachers_combination_method=teachers_combination_method,
                 batch_size=BATCH_SIZE,
+                models=teachers,
             )
             model.fit(
                 gen_train,
@@ -196,6 +216,7 @@ def train_model(base_model_name, teachers_combination_method, random_seed):
             size=size,
             teachers_combination_method=teachers_combination_method,
             batch_size=BATCH_SIZE,
+            models=teachers,
         )
 
         model.fit(
@@ -211,6 +232,7 @@ if __name__ == "__main__":
     args = parse_args()
     train_model(
         base_model_name=args.base_model,
+        teachers=args.teachers,
         teachers_combination_method=args.teachers_combination_method,
         random_seed=args.random_seed,
     )
