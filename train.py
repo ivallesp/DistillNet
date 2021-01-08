@@ -87,7 +87,7 @@ def parse_args():
         "--teachers",
         required=True,
         type=str,
-        help="Teachers to use. Allowed values: 'all', 'best'.",
+        help="Teachers to use. Allowed values: 'all', 'best', 'top3'.",
     )
     argparser.add_argument(
         "-t",
@@ -120,6 +120,9 @@ def train_model(base_model_name, teachers, teachers_combination_method, random_s
         # Alias name generation
         teachers_combination_method = "mean"
         model_alias = f"{base_model_name}-best-{random_seed}"
+    elif teachers == "top3":
+        teachers = ["nasnetlarge", " inceptionresnetv2", "xception"]
+        model_alias = f"{base_model_name}-top3-{random_seed}"
     else:
         raise ValueError(
             f"The value of the teachers parameter is invalid: '{teachers}'. Valid names are 'best' or 'all'"

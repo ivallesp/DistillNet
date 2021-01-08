@@ -99,7 +99,7 @@ def get_model_artifacts(model_name):
         from tensorflow.keras.applications.efficientnet import preprocess_input
         size = 256
     elif model_name == "efficientnetb0":
-        # accuracy: - OK
+        # accuracy: 0.75172 - OK
         from tensorflow.keras.applications.efficientnet import EfficientNetB0 as Model
         from tensorflow.keras.applications.efficientnet import preprocess_input
 
