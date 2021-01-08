@@ -121,7 +121,7 @@ def train_model(base_model_name, teachers, teachers_combination_method, random_s
         teachers_combination_method = "mean"
         model_alias = f"{base_model_name}-best-{random_seed}"
     elif teachers == "top3":
-        teachers = ["nasnetlarge", " inceptionresnetv2", "xception"]
+        teachers = ["nasnetlarge", "inceptionresnetv2", "xception"]
         model_alias = f"{base_model_name}-top3-{random_seed}"
     else:
         raise ValueError(
