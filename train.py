@@ -122,7 +122,9 @@ def train_model(base_model_name, teachers, teachers_combination_method, random_s
         model_alias = f"{base_model_name}-best-{random_seed}"
     elif teachers == "top3":
         teachers = ["nasnetlarge", "inceptionresnetv2", "xception"]
-        model_alias = f"{base_model_name}-top3-{random_seed}"
+        model_alias = (
+            f"{base_model_name}-top3-{teachers_combination_method}-{random_seed}"
+        )
     else:
         raise ValueError(
             f"The value of the teachers parameter is invalid: '{teachers}'. Valid names are 'best' or 'all'"
