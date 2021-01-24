@@ -1,3 +1,26 @@
+@inproceedings{krizhevsky2012,
+	author = {Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E},
+	booktitle = {Advances in Neural Information Processing Systems},
+	editor = {F. Pereira and C. J. C. Burges and L. Bottou and K. Q. Weinberger},
+	pages = {1097--1105},
+	publisher = {Curran Associates, Inc.},
+	title = {ImageNet Classification with Deep Convolutional Neural Networks},
+	doi = {10.1145/3065386},
+	volume = {25},
+	year = {2012}
+}
+
+@ARTICLE{zhuang2021,
+	author={F. {Zhuang} and Z. {Qi} and K. {Duan} and D. {Xi} and Y. {Zhu} and H. {Zhu} and H. {Xiong} and Q. {He}},
+	journal={Proceedings of the IEEE}, 
+	title={A Comprehensive Survey on Transfer Learning}, 
+	year={2021},
+	volume={109},
+	number={1},
+	pages={43-76},
+	doi={10.1109/JPROC.2020.3004555}}
+
+
 @article{liu2020,
   author    = {Linqing Liu and
                Huan Wang and
@@ -5,14 +28,10 @@
                Richard Socher and
                Caiming Xiong},
   title     = {MKD: a Multi-Task Knowledge Distillation Approach for Pretrained Language Models},
-  journal   = {CoRR},
-  volume    = {abs/1911.03588},
   year      = {2019},
-  url       = {http://arxiv.org/abs/1911.03588},
   archivePrefix = {arXiv},
   eprint    = {1911.03588},
   timestamp = {Sun, 01 Dec 2019 20:31:34 +0100},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1911-03588.bib},
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 
@@ -20,9 +39,10 @@
 	title	= {Distilling the Knowledge in a Neural Network},
 	author	= {Geoffrey Hinton and Oriol Vinyals and Jeffrey Dean},
 	year	= {2015},
-	URL	= {http://arxiv.org/abs/1503.02531},
+	% URL	= {http://arxiv.org/abs/1503.02531},
 	booktitle	= {NIPS Deep Learning and Representation Learning Workshop}
 }
+
 
 @misc{gou2020,
 	title={Knowledge Distillation: A Survey}, 
@@ -40,7 +60,14 @@
 	address={London, United Kingdom},
 	year={2019},
 	month={08--10 Jul},
-	url={https://openreview.net/forum?id=rklPRjjlxV},
+}
+
+@book{goodfellow2016,
+	title={Deep Learning},
+	author={Ian Goodfellow and Yoshua Bengio and Aaron Courville},
+	publisher={MIT Press},
+	year={2016},
+	doi={10.1007/s10710-017-9314-z}
 }
 
 @inproceedings{lee2017,
@@ -64,25 +91,16 @@
 	editor = {I. Dhillon and D. Papailiopoulos and V. Sze},
 	pages = {199--215},
 	title = {MotherNets: Rapid Deep Ensemble Learning},
-	url = {https://proceedings.mlsys.org/paper/2020/file/3ef815416f775098fe977004015c6193-Paper.pdf},
+	% url = {https://proceedings.mlsys.org/paper/2020/file/3ef815416f775098fe977004015c6193-Paper.pdf},
 	volume = {2},
 	year = {2020}
 }
 
-@ARTICLE{asif2019,
+@inproceedings{asif2019,
 	author = {{Asif}, Umar and {Tang}, Jianbin and {Harrer}, Stefan},
 	title = "{Ensemble Knowledge Distillation for Learning Improved and Efficient Networks}",
-	journal = {arXiv e-prints},
-	keywords = {Computer Science - Computer Vision and Pattern Recognition, Computer Science - Machine Learning},
-	year = 2019,
-	month = sep,
-	eid = {arXiv:1909.08097},
-	pages = {arXiv:1909.08097},
-	archivePrefix = {arXiv},
-	eprint = {1909.08097},
-	primaryClass = {cs.CV},
-	adsurl = {https://ui.adsabs.harvard.edu/abs/2019arXiv190908097A},
-	adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+	booktitle = {24th European Conference on Artificial Intelligence - ECAI},
+	year = 2020,
 }
 
 @misc{chollet2015keras,
@@ -125,7 +143,9 @@
 	doi={10.1109/CVPR.2017.243}}
 
 
- @InProceedings{pham2018, title = {Efficient Neural Architecture Search via Parameters Sharing}, author = {Pham, Hieu and Guan, Melody and Zoph, Barret and Le, Quoc and Dean, Jeff}, booktitle = {Proceedings of the 35th International Conference on Machine Learning}, pages = {4095--4104}, year = {2018}, editor = {Jennifer Dy and Andreas Krause}, volume = {80}, series = {Proceedings of Machine Learning Research}, address = {Stockholmsmässan, Stockholm Sweden}, month = {10--15 Jul}, publisher = {PMLR}, pdf = {http://proceedings.mlr.press/v80/pham18a/pham18a.pdf}, url = {http://proceedings.mlr.press/v80/pham18a.html} } 
+ @InProceedings{pham2018, title = {Efficient Neural Architecture Search via Parameters Sharing}, author = {Pham, Hieu and Guan, Melody and Zoph, Barret and Le, Quoc and Dean, Jeff}, booktitle = {Proceedings of the 35th International Conference on Machine Learning}, pages = {4095--4104}, year = {2018}, editor = {Jennifer Dy and Andreas Krause}, volume = {80}, series = {Proceedings of Machine Learning Research}, address = {Stockholmsmässan, Stockholm Sweden}, month = {10--15 Jul}, publisher = {PMLR}, pdf = {http://proceedings.mlr.press/v80/pham18a/pham18a.pdf}, 
+ 	%url = {http://proceedings.mlr.press/v80/pham18a.html} 
+ } 
  
  @inproceedings{chollet2017, 
  	author={F. Chollet}, 
@@ -144,16 +164,11 @@
 @misc{howard2017,
 	added-at = {2020-05-11T23:24:49.000+0200},
 	author = {Howard, Andrew G. and Zhu, Menglong and Chen, Bo and Kalenichenko, Dmitry and Wang, Weijun and Weyand, Tobias and Andreetto, Marco and Adam, Hartwig},
-	biburl = {https://www.bibsonomy.org/bibtex/2c5c68e31f5b5dea865fb7feacc5757c2/sohnki},
-	description = {[1704.04861] MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications},
-	interhash = {962bc072d9243f18fac8a2ef7663970b},
-	intrahash = {c5c68e31f5b5dea865fb7feacc5757c2},
-	keywords = {MobileNet order1},
-	note = {cite arxiv:1704.04861},
-	timestamp = {2020-06-02T20:03:57.000+0200},
+	eprint={1704.04861},
+	archivePrefix={arXiv},
 	title = {MobileNets: Efficient Convolutional Neural Networks for Mobile Vision
 	Applications},
-	url = {http://arxiv.org/abs/1704.04861},
+
 	year = 2017
 }
 
@@ -170,7 +185,7 @@
 
 
 
- @InProceedings{tan2019, title = {{E}fficient{N}et: Rethinking Model Scaling for Convolutional Neural Networks}, author = {Tan, Mingxing and Le, Quoc}, booktitle = {Proceedings of the 36th International Conference on Machine Learning}, pages = {6105--6114}, year = {2019}, editor = {Kamalika Chaudhuri and Ruslan Salakhutdinov}, volume = {97}, series = {Proceedings of Machine Learning Research}, address = {Long Beach, California, USA}, month = {09--15 Jun}, publisher = {PMLR}, pdf = {http://proceedings.mlr.press/v97/tan19a/tan19a.pdf}, url = {http://proceedings.mlr.press/v97/tan19a.html} } 
+ @InProceedings{tan2019, title = {{E}fficient{N}et: Rethinking Model Scaling for Convolutional Neural Networks}, author = {Tan, Mingxing and Le, Quoc}, booktitle = {Proceedings of the 36th International Conference on Machine Learning}, pages = {6105--6114}, year = {2019}, editor = {Kamalika Chaudhuri and Ruslan Salakhutdinov}, volume = {97}, series = {Proceedings of Machine Learning Research}, address = {Long Beach, California, USA}, month = {09--15 Jun}, publisher = {PMLR} } 
  
  @INPROCEEDINGS{szegedy2016,
  	author={C. {Szegedy} and V. {Vanhoucke} and S. {Ioffe} and J. {Shlens} and Z. {Wojna}},
@@ -201,3 +216,15 @@
 	month = {December},
 	year = {2014}
 }
+
+@ARTICLE{sanchez2020,
+	author={R. {Sanchez-Iborra} and A. F. {Skarmeta}},
+	journal={IEEE Circuits and Systems Magazine}, 
+	title={TinyML-Enabled Frugal Smart Objects: Challenges and Opportunities}, 
+	year={2020},
+	volume={20},
+	number={3},
+	pages={4-18},
+	doi={10.1109/MCAS.2020.3005467}}
+
+
