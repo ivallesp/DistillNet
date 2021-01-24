@@ -8,10 +8,7 @@ This repository contains the original implementation of the paper "Distilling th
 
 1. Install [pyenv](https://github.com/pyenv/pyenv) and [poetry](https://python-poetry.org/) in your system following the linked official guides.
 2. Open a terminal, clone this repository and `cd` to the cloned folder.
-3. Run `pyenv install $(.python-version)` in your terminal for installing the required python.
-
-   version
-
+3. Run `pyenv install $(.python-version)` in your terminal for installing the required python version.
 4. Configure poetry with `poetry config virtualenvs.in-project true`
 5. Create the virtual environment with `poetry install`
 6. Activate the environment with `source .venv/bin/activate`
