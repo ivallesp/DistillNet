@@ -18,13 +18,14 @@
 		\title{Distilling the Knowledge of Pretrained Models}
 		\author[UV]{Iván Vallés-Pérez}
 		\author[UV]{Emilio Soria-Olivas}
-		\author[UV]{TBD}
-		\author[UV]{TBD\footnote{Corresponding author. Email TBD@uv.es}}
-		\author[UV]{TBD}
+		\author[UV]{Juan Gómez-Sánchis}
+		\author[UV]{Marcelino Martínez-Sober}%\footnote{Corresponding author. Email TBD@uv.es}}
+		\author[UV]{Fernando Mateo-Jiménez}
+		\author[UV]{Joan Vila-Francés}
 		\address[UV]{Escola Tècnica Superior d\textsc{\char13}Enginyeria, University of Valencia, Avenida de la Universitat s/n 46100 Burjassot, Valencia, Spain}
 
 		\begin{abstract}
-		Since the 2012 ImageNet competition, many convolutional neural networks based architectures for computer vision have been proposed leading to a large number of open sourced resources in form of pretrained models. In this paper we explore the possibility of combining the knowledge of different pretrained models into a base model using knowledge distillation techniques. We show how we can improve the accuracy of the lightest pretrained models by fine-tuning them using the soft-labels of their superior counterparts. The knowledge transfer is performed by using solely unlabeled data. A 1.0\% and a 1.3\% absolute improvement in top-1 and top-5 accuracy is achieved across several models, suggesting that the trained architectures are still not at their capacity limit. This technique allows having a significant improve of performance in mobile and other \textit{TinyML} applications.
+		Since the 2012 \textit{ImageNet} competition, many convolutional neural networks based architectures for computer vision have been proposed leading to a large number of open sourced resources in form of pretrained models. In this paper we explore the idea of combining the knowledge of multiple pretrained models into another simpler pretrained model using knowledge distillation techniques. We show how we can improve the accuracy of the lightest pretrained models by fine-tuning them using the soft-labels of their superior counterparts. The knowledge transfer is performed by using solely unlabeled data. We achieved up to a 3.0\% and a 1.7\% absolute improvement in top-1 and top-5 accuracy is achieved across several models, suggesting that the trained architectures are still not at their capacity limit. This technique allows having a significant improve of performance in mobile and other \textit{TinyML} applications.
 		\end{abstract}
 		
 		\begin{keyword}
@@ -106,27 +107,22 @@
 	
 	\begin{table}[h]
 		\small
-		\caption{Pretrained models used as trachers along this study, taken from \textit{Keras} implementations. Some of the input resolutions shown in the table may not correspond to the resolutions of the original papers, however we decided to run the models in the resolutions indicated in the table as they showed a substantial performance improvement. The performance metrics reported in the table are empirical accuracies obtained by measuring the performance of the models against the \textit{ImageNet} 2012 validation dataset, using the \textit{Keras} implementations. They may differ from the performance reported in the original studies. $M$ means millions.}
+		\caption{Pretrained models used as trachers along this study, taken from \textit{Keras} implementations. Some of the input resolutions shown in the table may not correspond to the resolutions of the original papers, however we decided to run the models in the resolutions indicated in the table as they showed a substantial performance improvement. The performance metrics reported in the table are empirical accuracies obtained by measuring the performance of the models against the \textit{ImageNet} 2012 validation dataset, using the \textit{Keras} implementations. They may differ from the performance reported in the original studies. $M$ means millions. We have marked in bold the models that were used as students.}
 		\centering
 	\begin{tabular}{c|cc|cc}
 		\toprule
-		Model & Input size & \#Parameters & Top-1 acc. & Top-5 acc. \\
-		\midrule
-		NasNetLarge & 331x331 & 89M & 82.44\% &  \\
-		InceptionResNetV2 & 299x299 & 56M & 80.44\% &  \\
-		Xception & 299x299 & 23M & 78.92\% &  \\
-		EfficientNetB7 & 256x256 &  & 77.88\% &  \\
-		DenseNet201 & 256x256 & 20M & 77.79\% &  \\
-		DenseNet169 & 256x256 & 14M & 76.50\% &  \\
-		ResNet50 & 256x256 & 26M & 75.55\% &  \\
-		DenseNet121 & 256x256 & 8M & 75.44\% &  \\
-		EfficientNetB0 & 256x256 &  & 75.17\% &  \\
-		MobileNetV2 & 256x256 & 4M & 72.98\% &  \\
-		MobileNetV1 & 256x256 & 4M & 71.72\% &  \\
-
-
-
-		\bottomrule
+		         Model          & Input size & \#Params. & Top-1 acc. & Top-5 acc. \\ \midrule
+		      NasNetLarge       &  331x331   &    89M    &  82.44\%   &  96.02\%   \\
+		   InceptionResNetV2    &  299x299   &    56M    &  80.44\%   &  95.31\%   \\
+		   \textbf{Xception}    &  299x299   &    23M    &  78.92\%   &  94.47\%   \\
+		    EfficientNetB7      &  256x256   &    67M    &  77.88\%   &  93.87\%   \\
+		      DenseNet201       &  256x256   &    20M    &  77.75\%   &  93.83\%   \\
+		      DenseNet169       &  256x256   &    14M    &  76.60\%   &  93.39\%   \\
+		       ResNet50         &  256x256   &    26M    &  75.53\%   &  92.53\%   \\
+		 \textbf{DenseNet121}   &  256x256   &    8M     &  75.47\%   &  92.68\%   \\
+		\textbf{EfficientNetB0} &  256x256   &    5M     &  75.17\%   &  92.34\%   \\
+		 \textbf{MobileNetV2}   &  256x256   &    4M     &  73.11\%   &  91.29\%   \\
+		      MobileNetV1       &  256x256   &    4M     &  71.73\%   &  90.44\%   \\ \bottomrule
 	\end{tabular}
 	\label{table:models}
 	\end{table}
@@ -146,8 +142,8 @@
 	
 	\begin{itemize}
 		\item Student: we used different small models as a base, to study how the methodology works with different students. The models used as students are: \textit{MobileNetV2}, \textit{EfficientNetB0}, \textit{DenseNet121} and \textit{Xception}.
-		\item Teachers set: according to the performance shown in table \ref{table:models}, we selected the best teacher, the top-3 teachers and all the 11 teachers.
-		\item Teachers combination method: we tried to combine the teachers with the methods described in the section \ref{sec:teachers_comb}. These methods are referred in the tables below as \textit{mean}, \textit{median} and \textit{random}. This does not apply to the case where we only consider the best teacher, as no combination method is needed
+		\item Teachers set: according to the performance shown in table \ref{table:models}, we selected different sets of teachers to combine to build the distillation target: the ``best'' teacher (i.e. \textit{NasNetLarge}), the ``top-3'' teachers (i.e. \textit{NasNetLarge}, \textit{InceptionResNetV2} and \textit{Xception}) and ``all'' the 11 teachers.
+		\item Teachers combination method: we tried to combine the teachers with the methods described in the section \ref{sec:teachers_comb}. These methods are referred in the tables below as ``mean'', ``median'' and ``random''. This does not apply to the case where we only consider the best teacher, as no combination method is needed
 	\end{itemize}
 
 	The set of experiments conducted in this study is represented in the schema of figure \ref{fig:schema}.
@@ -165,71 +161,97 @@
 	
 	 In our experiments we fix $S=0.35$ and determine the value of $T$ for every pretrained model using the bisection method with the transfer data set. The value of S has been chosen so that it produces an average temperature across the models of 2.0, which is close to the range recommended in \cite{hinton2015}. We tried doubling the temperature parameter concluding that there were no noticeable improvements.
 	 
-	 To run the experiments, we used a single \textit{Nvidia RTX 2080ti} GPU, and the code has been implemented in \textit{Tensorflow 2.0}. The repository of code is public and can be found in the following URL: \url{https://github.com/ivallesp/cocktailnet}
+	 To run the experiments, we used a single \textit{Nvidia RTX 2080ti} GPU, and the code has been implemented in \textit{Tensorflow 2.0}. The repository of code is public and can be found in the following URL: \url{https://github.com/ivallesp/distillnet}
 		
 	\subsection{Results}  \label{sec:results}
-	Tables \ref{tab:results1} and \ref{tab:results5} shows the results achieved by each of the models trained. The results are expressed as the average metric $\pm$ the standard ertror. As it can be seen in the table, the proposed methodology is able to increase the accuracy of the models up to +X.X\%, +X.X\%, +X.X\% and +X.X\% for the \textit{MobileNetV2}, \textit{EfficientNetB0}, \textit{DenseNet} and \textit{Xception} students, respectively. In general, the best combination method has been XXXXX although in the case of \textit{DenseNet} it YYYYYY showed better results. 
+	Tables \ref{tab:results1} and \ref{tab:results5} summarize the results achieved by each of the experiments run over the \textit{ImageNet} data set. The metrics reported are the top-1 accuracy and the top-5 accuracy, as it is standard in \textit{Imagenet} benchmarks. The results are expressed as the average metric $\pm$ the standard error\footnote{It is important to clarify that the standard error of the results shown in the tables is very small because the initial weights in each student are the same across the 5 repetitions, given that the training starts from the pretrained model weights. The variability reported is produced by stochastic processes other than the initialization, such as dropout or random teacher selection.}.  
+	
+	As it can be seen in the table, the proposed methodology achieves an absolute accuracy increase of up to +3.04\%, +1.00\%, +0.97\% and +0.38\% for the \textit{EfficientNetB0}, \textit{MobileNetV2},  \textit{DenseNet} and \textit{Xception} students, respectively. 
+	
+	We observe that building a teacher by combining ``all'' the pretrained models, or combining the ``top-3'' ones, lead to similar results. However, in some cases the combination of ``all' the teachers is superior to the ``top-3'' (e.g. \textit{DenseNet121} as student), but also the contrary occurs (e.g. \textit{EfficientNetB0} as student). We also notice that using only the ``best'' model as teacher often leads to overfitting issues.  
+	
+	Regarding the teacher combination method, we observe that the ``mean'' and ``random'' methods lead to better results when compared to the ``median'' method. This may be happening because when using the ``median'' method to combine the teacher predictions, the probability distribution is not preserved (i.e. the output probabilities for every class do not sum to 1), forcing us to apply a posterior normalization step. This process may add some noise to the new distillation target.
+	
+	The aforementioned observations lead to the following conclusions: (1) the smaller the student model is, the higher the accuracy increase, (2) increasing the number of teachers leads to better generalization, and (3) combining the teachers using an average or a random teacher choice results in better performance than combining them using the median.
 	
 	\begin{table}[h]
-	\small
+	 \footnotesize
 	\centering
 
-	\caption{Results in top-1 accuracy (\%) for all the experiments. Each column in the table represents a different teacher set}
-	\begin{tabular}{rrrrrr}\toprule
-		& &Baseline &Best &Top3 &All \\
-		Student, &Comb. method & & & & \\\midrule
-		MobileNetV2 &Mean &72.98 &$\mu \pm \sigma$ &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Median &72.98 &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Random &72.98 &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		& & & & & \\
-		EfficientNetB0 &Mean &75.17 &$\mu \pm \sigma$ &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Median &75.17 &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Random &75.17 &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		& & & & & \\
-		DenseNet121 &Mean &75.44 &$\mu \pm \sigma$ &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Median &75.44 &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Random &75.44 &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		& & & & & \\
-		Xception &Mean &78.92 &$\mu \pm \sigma$ &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Median &78.92 &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Random &78.92 &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		\bottomrule
+	\caption{Results in top-1 accuracy (\%) for all the experiments. Each column in the table represents a different teacher set. We highlighted in bold the experiment that achieved better performance for each student.}
+	\begin{tabular}{rrrrrr}
+		\toprule
+		               &              & Baseline &              Best &              Top3 &               All \\
+		      Student, & Comb. method &          &                   &                   &                   \\ \midrule
+		   MobileNetV2 &         Mean &    73.11& $ 73.85 \pm 0.01$ &  $73.99 \pm 0.01$ &  $\mathbf{74.11 \pm 0.02}$ \\
+		               &       Median &    73.11 &                 - &  $75.92 \pm 0.00$ &  $74.04 \pm 0.01$ \\
+		               &       Random &    73.11 &                 - &  $73.96 \pm 0.01$ &  $74.03 \pm 0.01$ \\
+		               &              &          &                   &                   &                   \\
+		EfficientNetB0 &         Mean &    75.17 & $ 78.14 \pm 0.02$ &  $78.20 \pm 0.02$ &  $78.07 \pm 0.01$ \\
+		               &       Median &    75.17 &                 - &  $78.18 \pm 0.01$ &  $77.98 \pm 0.01$ \\
+		               &       Random &    75.17 &                 - &  $\mathbf{78.21 \pm 0.01}$ &  $78.05 \pm 0.01$ \\
+		               &              &          &                   &                   &                   \\
+		   DenseNet121 &         Mean &    75.47 & $ 75.83 \pm 0.01$ &  $75.92 \pm 0.01$ &  $\mathbf{76.44 \pm 0.02}$ \\
+		               &       Median &    75.47 &                 - & $ 75.87 \pm 0.02$ & $ 76.42 \pm 0.02$ \\
+		               &       Random &    75.47 &                 - &  $75.92 \pm 0.02$ &  $76.43 \pm 0.01$ \\
+		               &              &          &                   &                   &                   \\
+		      Xception &         Mean &    78.92 &  $79.11 \pm 0.01$ &  $\mathbf{79.30 \pm 0.02}$ &  $79.16 \pm 0.02$ \\
+		               &       Median &    78.92 &                 - &  $79.18 \pm 0.01$ &  $79.19 \pm 0.01$ \\
+		               &       Random &    78.92 &                 - &  $79.27 \pm 0.02$ &   $79.14\pm 0.01$ \\ \bottomrule
 	\end{tabular}
 	\label{tab:results1}
 	\end{table}
 
 	\begin{table}[h]
-	\small
+ \footnotesize
 	\centering
 
-	\caption{Results in top-5 accuracy (\%) for all the experiments. Each column in the table represents a different teacher set}
-	\begin{tabular}{rrrrrr}\toprule
-		& &Baseline &Best &Top3 &All \\
-		Student, &Comb. method & & & & \\\midrule
-		MobileNetV2 &Mean &XXX &$\mu \pm \sigma$ &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Median &XXX &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Random &XXX &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		& & & & & \\
-		EfficientNetB0 &Mean &XXX &$\mu \pm \sigma$ &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Median &XXX&- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Random &XXX&- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		& & & & & \\
-		DenseNet121 &Mean &XXX &$\mu \pm \sigma$ &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Median &XXX &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Random &XXX &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		& & & & & \\
-		Xception &Mean &XXX &$\mu \pm \sigma$ &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Median &XXX &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		&Random &XXX &- &$\mu \pm \sigma$ &$\mu \pm \sigma$ \\
-		\bottomrule
+	\caption{Results in top-5 accuracy (\%) for all the experiments. Each column in the table represents a different teacher set. We highlighted in bold the experiment that achieved better performance for each student.}
+	\begin{tabular}{rrrrrr}
+		\toprule
+		               &              & Baseline &             Best &             Top3 &              All \\
+		      Student & Comb. method &          &                  &                  &                  \\ \midrule
+		   MobileNetV2 &         Mean &      91.29 & $91.83 \pm 0.01$ & $91.86 \pm 0.01$ & $92.02 \pm 0.01$ \\
+		               &       Median &      91.29 &                - & $91.84 \pm 0.01$ & $91.91 \pm 0.01$ \\
+		               &       Random &      91.29 &                - & $91.88 \pm 0.00$ & $\mathbf{91.96 \pm 0.01}$ \\
+		               &              &          &                  &                  &                  \\
+		EfficientNetB0 &         Mean &      92.34 & $94.17 \pm 0.00 $ & $\mathbf{94.17 \pm 0.01}$ & $94.01 \pm 0.00$ \\
+		               &       Median &      92.34 &                - & $94.10 \pm 0.01$ & $93.93 \pm 0.01$ \\
+		               &       Random &      92.34 &                - & $94.08 \pm 0.01$ & $93.99 \pm 0.01$ \\
+		               &              &          &                  &                  &                  \\
+		   DenseNet121 &         Mean &      92.68 & $92.95 \pm 0.01 $ & $93.04 \pm 0.01$ & $\mathbf{93.30 \pm 0.01}$ \\
+		               &       Median &      92.68 &                - & $92.98 \pm 0.01$ & $93.29 \pm 0.01$ \\
+		               &       Random &      92.68 &                - & $93.03 \pm 0.01$ & $\mathbf{93.30 \pm 0.01}$ \\
+		               &              &          &                  &                  &                  \\
+		      Xception &         Mean &     94.47& $94.55 \pm 0.01$ & $\mathbf{94.70 \pm 0.01}$ & $94.65 \pm 0.00$ \\
+		               &       Median &      94.47 &                - & $94.65 \pm 0.01$ & $94.63 \pm 0.01$ \\
+		               &       Random &      94.47 &                - & $94.68 \pm 0.01$ & $94.59 \pm 0.01$ \\ \bottomrule
 	\end{tabular}
 	\label{tab:results5}
 \end{table}
 	
-	Figures XX and YY show the training curves for all the cases. As it can be seen although we reported the accuracy of the 100th epoch, there are cases where earlier epochs showed a slightly better performance.
+	Figures \ref{fig:top1curves} and \ref{fig:top5curves} show the training curves for all the cases. As it can be seen in the figures, although we reported the maximum accuracy achieved by each model, there are models for which the accuracy degrades more than the others if the model is trained for more epochs (for instance this is the general trend of the ``best'' teacher). We hypothesize that this phenomenon may be occurring because when several teachers are combined to build the distillation target, the complexity of the classification task increases and that has, in essence, a regularization effect.
 	
-	In our experiments, we noticed that choosing a very small learning rate was crucial to achieve the performance reported. Higher learning rates ( $10^{-5}$ and  $10^{-3}$) were tested leading to worse performances (sometimes even worse than the original pretrained model). We hypothesize that this effect is due to catastrophic forgetting, which leads to overfitting to the transfer set when the learning rate is too big.
+	In our experiments, we noticed that choosing a very small learning rate was crucial to achieve the performance reported. Higher learning rates ( $10^{-5}$ and  $10^{-3}$) were tested leading to worse performances (sometimes even worse than the original pretrained model). However we have not exhaustively studied this phenomenon due to the high resource requirements involved. We hypothesize that this effect may be due to catastrophic forgetting \cite{French99}, which leads to overfitting to the transfer set when the learning rate is too big.
 			
+			
+	% TODO: \usepackage{graphicx} required
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=1\linewidth]{img/top1_curves}
+		\caption{Absolute difference of top-1 accuracy with respect to the baseline. The x-axis represents the number of training iterations, and the tuples in the legend are expressed in the following format: (teachers set, combination method). The y-axis shows the absolute difference in performance with respect to the baseline.}
+		\label{fig:top1curves}
+	\end{figure}
+	
+			
+		% TODO: \usepackage{graphicx} required
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=1\linewidth]{img/top5_curves}
+		\caption{Absolute difference of top-5 accuracy with respect to the baseline. The x-axis represents the number of training iterations, and the tuples in the legend are expressed in the following format: (teachers set, combination method). The y-axis shows the absolute difference in performance with respect to the baseline.}
+		\label{fig:top5curves}
+	\end{figure}
+	
 	\section{Conclusions}  \label{sec:conclusions}
 	We have shown how by using simple knowledge distillation techniques it is possible to increase the accuracy of the smallest pretrained models in just few training epochs. In our opinion, this opens potential new research lines towards more sophisticated teacher blending techniques or distillation methodologies. This can also motivate the research of novel training techniques, alternative or complementary to \textit{backpropagation}, as it seems that the pretrained models still didn't reach their maximum capacity.
 	

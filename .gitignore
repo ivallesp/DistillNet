@@ -17,3 +17,26 @@ models_*
 
 # Data path
 data
+
+# Compressed files
+*.tar
+*.tar.gz
+*.zip
+*.gz
+
+# MacOS garbage
+.DS_Store
+
+# PDFs docs
+*.pdf
+
+# Latex garbage
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.spl
+
+# Unison stuff
+.unison*
