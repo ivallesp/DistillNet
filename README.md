@@ -1,4 +1,4 @@
-# CocktailNet
+# DistillNet
 
 This repository contains the original implementation of the paper "Distilling the Knowledge of Pretrained Models".
 
