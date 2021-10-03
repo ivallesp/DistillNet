@@ -12,27 +12,27 @@
 
 \journal{Elsevier}
 %% For ESWA journal you need to use APA style
-\bibliographystyle{model5-names}
-\biboptions{authoryear}
+\bibliographystyle{elsarticle-num}
+
 
 
 \begin{document}
 	\begin{frontmatter}
-		\title{Distilling the Knowledge of Pretrained Models}
+		\title{Distilling the Knowledge of Pre-trained Models}
 		\author[UV]{Iván Vallés-Pérez\footnote{Corresponding author. Email ivan.valles@uv.es. Addr: Escola Tècnica Superior d\textsc{\char13}Enginyeria, University of Valencia, Avenida de la Universitat s/n 46100 Burjassot, Valencia, Spain.  Telephone: +44 7899 865 681}}
 		\author[UV]{Emilio Soria-Olivas}
-		\author[UV]{Juan Gómez-Sanchis}
+		\author[UV]{Juan Gómez-Sanchís}
 		\author[UV]{Marcelino Martínez-Sober}%\footnote{Corresponding author. Email TBD@uv.es}}
 		\author[UV]{Fernando Mateo-Jiménez}
 		\author[UV]{Joan Vila-Francés}
 		\address[UV]{Escola Tècnica Superior d\textsc{\char13}Enginyeria, University of Valencia, Avenida de la Universitat s/n 46100 Burjassot, Valencia, Spain. \\ ivan.valles@uv.es, emilio.soria@uv.es, juan.gomez-sanchis@uv.es, marcelino.martinez@uv.es, fernando.mateo@uv.es, joan.vila@uv.es}
 
 		\begin{abstract}
-		Since the 2012 \textit{ImageNet} competition, many convolutional neural networks based architectures for computer vision have been proposed leading to a large number of open sourced resources in the form of pretrained models. In this paper we explore the idea of combining the knowledge of multiple pretrained models into another simpler pretrained model using knowledge distillation techniques. We show how we can improve the accuracy of the lightest pretrained models by fine-tuning them using the soft-labels of their superior counterparts. The knowledge transfer is performed by using solely unlabeled data. We achieved up to a 3.0\% and a 1.7\% absolute improvement in top-1 and top-5 accuracy is achieved across several models, suggesting that the trained architectures are still not at their capacity limit. This technique allows having a significant improvement of performance in mobile and other \textit{TinyML} applications.
+		Since the 2012 \textit{ImageNet} competition, many convolutional neural networks based architectures for computer vision have been proposed leading to a large number of open sourced resources in the form of pre-trained models. In this paper we explore the idea of combining the knowledge of multiple pre-trained models into another simpler pre-trained model using knowledge distillation techniques. We show how we can improve the accuracy of the lightest pre-trained models by fine-tuning them using the soft-labels of their superior counterparts. The knowledge transfer is performed by using solely unlabeled data. We achieved up to a 3.0\% and a 1.7\% absolute improvement in top-1 and top-5 accuracy is achieved across several models, suggesting that the trained architectures are still not at their capacity limit. This technique allows having a significant improvement of performance in mobile and other \textit{TinyML} applications.
 		\end{abstract}
 		
 		\begin{keyword}
-			deep learning \sep knowledge distillation \sep pretrained models \sep computer vision  
+			deep learning \sep knowledge distillation \sep pre-trained models \sep computer vision  
 		\end{keyword}
 		
 	\end{frontmatter}
@@ -40,16 +40,16 @@
 	\linenumbers
 	
 	\section{Introduction}
-	Computer vision systems have evolved dramatically in the last decade due to the rise of deep learning technologies. In 2012, \textit{AlexNet} \citep{krizhevsky2012} achieved the first position in the \textit{ImageNet} yearly challenge \citep{ILSVRC15}, and that was the first time a neural network got such position. Since then, the neural solutions prevailed, and many different architectures were proposed, each of them being better than the previous ones. The weights of many of the best solutions to the \textit{ImageNet} competition are publicly available (e.g. \cite{he2016, chollet2017, szegedy2016, szegedy2017, howard2017, pham2018, tan2019}), and the machine learning community gets benefits from it. One of the most common applications of pretrained models is transfer learning \citep{zhuang2021}, where the weights of a model that has been trained to solve a large scale task (such as the \textit{ImageNet} classification task) are re-utilized and fine-tuned to adapt them to another task. Usually, the first layers of the network are frozen and only the last few layers are allowed to be adjusted. This technique works under the hypothesis that lower layers learn simpler and widely applicable patterns that are used by higher level layers to solve the objective task.	
+	Computer vision systems have evolved dramatically in the last decade due to the rise of deep learning technologies. In 2012, \textit{AlexNet} \citep{krizhevsky2012} achieved the first position in the \textit{ImageNet} yearly challenge \citep{ILSVRC15}, and that was the first time a neural network got such position. Since then, the neural solutions prevailed, and many different architectures were proposed, each of them being better than the previous ones. The weights of many of the best solutions to the \textit{ImageNet} competition are publicly available (e.g. \cite{he2016, chollet2017, szegedy2016, szegedy2017, howard2017, pham2018, tan2019}), and the machine learning community gets benefits from it. One of the most common applications of pre-trained models is transfer learning \citep{zhuang2021}, where the weights of a model that has been trained to solve a large scale task (such as the \textit{ImageNet} classification task) are re-utilized and fine-tuned to adapt them to another task. Usually, the first layers of the network are frozen and only the last few layers are allowed to be adjusted. This technique works under the hypothesis that lower layers learn simpler and widely applicable patterns that are used by higher level layers to solve the objective task.	
 	
 	Another very powerful technique is known as knowledge distillation, and consists on transferring knowledge from a teacher model to a student model. In 2015, Geoffrey Hinton and his collaborators showed that it was possible to improve the performance of a simple model (known as the student) by distilling the knowledge of a more sophisticated model (named the teacher) \citep{hinton2015}. The technique proposed in this paper is very simple and consists on training the student with the soft-targets of the teacher, given a transfer data set. The soft-targets are the raw predictions of the model, which are expressed as probabilities of belonging to each class. The authors suggest to minimize the cross-entropy with soft-targets, after dividing the logits by a temperature constant $T$ (process known as warming the logits, extra details in section \ref{sec:kd}) so that the probability distribution gets less sparse (i.e. more spread across the classes different than the majority class). This technique is built over the hypothesis that there is more information in the soft targets than in the hard targets. This additional information is sometimes known as \textit{dark knowledge} \citep{gou2020}.
 	
 	
-	 This paper proposes to explore the idea of combining the knowledge of multiple pre-trained models with the objective of improving the accuracy of a base model, while keeping the training cost small and using an unlabeled transfer data set. 	An ensemble of pre-trained models may be the most powerful solution in terms of accuracy but it is energy-inefficient and may not be applicable for mobile applications or tasks that require a time-sensitive inference \citep{sanchez2020}. Therefore, we approach this problem from a knowledge distillation perspective, where we aim to distill the knowledge of multiple heavy pretrained models into a light-weight base model. We show that not only it is possible to improve its original accuracy but that some techniques for combining the knowledge of multiple teachers is better than others. 
+	 This paper proposes to explore the idea of combining the knowledge of multiple pre-trained models with the objective of improving the accuracy of a base model, while keeping the training cost small and using an unlabeled transfer data set. 	An ensemble of pre-trained models may be the most powerful solution in terms of accuracy but it is energy-inefficient and may not be applicable for mobile applications or tasks that require a time-sensitive inference \citep{sanchez2020}. Therefore, we approach this problem from a knowledge distillation perspective, where we aim to distill the knowledge of multiple heavy pre-trained models into a light-weight base model. We show that not only it is possible to improve its original accuracy but that some techniques for combining the knowledge of multiple teachers is better than others. 
 	
 	A few previous works have been published where the objective was to combine multiple deep learning models. The authors of \citep{liu2020} distill the knowledge of several teachers into a multitask student in the computational linguistics domain. Apart from the different domain of application, their approach differs from ours in the fact that their student and teachers goals differ: their student learns to combine the different objectives of the teachers. In \citep{geyer2019}, the authors present a new technique that allows merging multiple models using a parameter fusing technique based on the Incremental Mode Matching (IMM) procedure \citep{lee2017}. This methodology has an important limitation that makes it unsuitable for our use case: the pre-trained and the target architecture must have the same structure. Our objective is to improve the performance of a light-weight model using the knowledge of its greater siblings, which normally have more complex architectures. In the work of \citep{asif2019}, the authors define a framework to learn a small ensemble of students from a large ensemble of teachers which are combined linearly. For that, they propose to define a neural network architecture with as many student branches as teachers. The student branches are trained to minimize their \textit{Kullback-Leibler} (KL) divergence with their corresponding teacher branch, as well as minimizing the KL-divergence between the linear combination of the students, and the linear combination of the teachers. Our approach differs fundamentally in the fact that our base architecture size is independent of the number of teachers. In addition, instead of using KL-divergence losses, we minimize the cross-entropy with soft-targets, as defined by \citep{hinton2015}.
 	
-	In this work we show how we how the performance of small pretrained models can be increased by leveraging the knowledge of their large counterparts. The knowledge distillation, pretrained models and teacher combination methods are described in section  \ref{sec:methods}. Section \ref{sec:experiments} provides the details of our experimental framework, including the data set used along this study as well as the different experiments conducted. The results of the experiments are presented and analyzed in section \ref{sec:results}. Finally, the section \ref{sec:conclusions} summarizes the conclusions drawn from the achieved results.
+	In this work we show how the performance of small pre-trained models can be increased by leveraging the knowledge of their large counterparts. The knowledge distillation, pre-trained models and teacher combination methods are described in section  \ref{sec:methods}. Section \ref{sec:experiments} provides the details of our experimental framework, including the data set used along this study as well as the different experiments conducted. The results of the experiments are presented and analyzed in section \ref{sec:results}. Finally, the section \ref{sec:conclusions} summarizes the conclusions drawn from the achieved results.
 	
 	\section{Methods} \label{sec:methods}
 	In this section we describe the training methods we used as well as the knowledge distillation framework and the techniques employed to combine different teachers.
@@ -82,7 +82,9 @@
 	In this study we fix $\alpha=1$ given that we only use unlabeled data for training, and hence no hard targets are available.
 	
 	\subsection{Teachers combination} \label{sec:teachers_comb}
-	 Different models may produce harder or softer posterior probability distributions. In order to be able to combine  different models for building the teacher signal that will be used to train the student, the posterior probability distributions need to be calibrated. The hardness or softness of a distribution can be controlled with the temperature parameter $T$ In this case, as different models have been combined to build the soft target, the temperature of each model has been chosen so that the average probability of the most probable class becomes $S$. Hence $S$ represents a hyperparameter that must be chosen before training, while $s$ is a specific choice of $S$.  $T$ has been set independently for each pretrained model so that $S=s$, on average over the transfer data set. The value of $T$ has been found using the bisection method.
+	 Different models may produce harder or softer posterior probability distributions. In order to be able to successfully combine  different models for building the teacher signal that will be used to train the student, the posterior probability distributions need to be calibrated. 
+	 
+	 The hardness or softness of a distribution can be controlled with the temperature parameter $T$ (see equation \ref{eq:softmax}). In this case, as different models have been combined to build the soft target signal. The temperature of each model has been chosen so that the average probability of the most probable class becomes $S$. Hence $S$ represents a hyperparameter that must be chosen before training. We use $s$ to denote a specific choice of $S$.  $T$ has been determined independently for each pre-trained model so that $S=s$, on average over the transfer data set. The value of $T$ has been found using the bisection method.
 	 
 	 Once the probability distributions have been normalized, the following techniques have been defined as teacher combination proposals.
 	 
@@ -95,7 +97,7 @@
  	\end{itemize}
  
     \subsection{Pretrained models}
-    Some of the pretrained models included in the Keras library for Python \citep{chollet2015keras} have been used along this study. Below we provide a short description about each of those architectures, and further details are included in table \ref{table:models}.
+    Some of the pre-trained models included in the Keras library for Python \citep{chollet2015keras} have been used along this study. Below we provide a short description about each of those architectures, and further details are included in table \ref{table:models}.
     
     \begin{enumerate}
     	\item \textit{ResNet} \citep{he2016}: convolutional neural network with multiple blocks where the output of the $l^{th}$ layer is added to the output of the $(l+1)^{th}$. This structure is known as \textit{residual connection} (or \textit{skip connection}), and leads to the following transition: $x_{l+1} = H_{l+1}(x_{l}) + x_l$, where $H$ represents a a convolutional layer.
@@ -136,7 +138,7 @@
 	\subsection{Data set}
 	The \textit{ILSVRC2012 ImageNet} data set has been used in all our experiments \citep{ILSVRC15}, given its large popularity and numerous available benchmarks. It is composed of 1.3 million images,  each of which belongs to only one class out of 1000 available classes. The data is provided in three separated subsets: train, validation and test, with 1.2M, 50,000 and 100,000 images in each set, respectively. The ground truth labels are provided for the train and validation sets, but not for the test set (i.e. the test set is unlabeled).
 	
-	The original data set comes with images at different sizes and aspect ratios. We have generated three different sets with the following sizes: 256x256, 299x299 and 331x331. For that, we have first resized the images so that their short edge matches the desired size and then we have applied center-cropping to get a square image, as it is common in these cases. Pixel values centering and scaling have been applied as per the functions provided with \textit{Keras} along with each pretrained model. No data augmentation has been used along this study.
+	The original data set comes with images at different sizes and aspect ratios. We have generated three different sets with the following sizes: 256x256, 299x299 and 331x331. For that, we have first resized the images so that their short edge matches the desired size and then we have applied center-cropping to get a square image, as it is common in these cases. Pixel values centering and scaling have been applied as per the functions provided with \textit{Keras} along with each pre-trained model. No data augmentation has been used along this study.
 	
 	In this work, we will use the unlabeled test set as transfer data set and the validation set to measure and report performance. 
 	
@@ -160,18 +162,18 @@
 \end{figure}
 
 		
-	We have repeated each experiment 5 times to add more robustness to our results, totaling to 140 training processes. The students initial weights have always been fixed to the pretrained weights for the \textit{ImageNet} classification task, across all the experiments. During training, no layers have been frozen, allowing the optimizer to fine-tune all the weights in the student network. The last layer has been warmed in all the cases to match the normalized soft-targets distribution, as described in section \ref{sec:teachers_comb}.  Each model has been trained for 100 epochs with \textit{Adam} optimizer \citep{Kingma14} and a learning rate of $10^{-6}$.
+	We have repeated each experiment 5 times to add more robustness to our results, totaling to 140 training processes. The students initial weights have always been fixed to the pre-trained weights for the \textit{ImageNet} classification task, across all the experiments. During training, no layers have been frozen, allowing the optimizer to fine-tune all the weights in the student network. The temperature of the softmax in the output of the last layer has been increased in all the cases to match the normalized soft-targets distribution, as described in section \ref{sec:teachers_comb}.  Each model has been trained for 100 epochs, and the results are presented in the next section at the early stopping point. We used \textit{Adam} optimizer \citep{Kingma14} and a learning rate of $10^{-6}$. 
 	
-	 In our experiments we fix $S=0.35$ and determine the value of $T$ for every pretrained model using the bisection method with the transfer data set. The value of S has been chosen so that it produces an average temperature across the models of 2.0, which is close to the range recommended in \citep{hinton2015}. We tried doubling the temperature parameter concluding that there were no noticeable improvements.
+	 In our experiments we fix\footnote{The $S$ value has been chosen to be close to the minimum average probability across teachers of the most probable class.} $S=0.35$ and determine the value of $T$ for every pre-trained model using the bisection method with the transfer data set. The value of $S$ has been chosen so that it produces an average temperature across the models of 2.0, which is close to the range recommended in \citep{hinton2015}. We tried doubling the temperature parameter concluding that there were no noticeable improvements.
 	 
 	 To run the experiments, we used a single \textit{Nvidia RTX 2080ti} GPU, and the code has been implemented in \textit{Tensorflow 2.0}. The repository of code is public and can be found in URL of the footnote\footnote{\url{https://github.com/ivallesp/distillnet}}.
 		
 	\subsection{Results}  \label{sec:results}
-	Tables \ref{tab:results1} and \ref{tab:results5} summarize the results achieved by each of the experiments run over the \textit{ImageNet} data set. The metrics reported are the top-1 accuracy and the top-5 accuracy, as it is standard in \textit{Imagenet} benchmarks. The results are expressed as the average metric $\pm$ the standard error\footnote{It is important to clarify that the standard error of the results shown in the tables is very small because the initial weights in each student are the same across the 5 repetitions, given that the training starts from the pretrained model weights. The variability reported is produced by stochastic processes other than the initialization, such as dropout or random teacher selection.}.  
+	Tables \ref{tab:results1} and \ref{tab:results5} summarize the results achieved by each of the experiments run over the \textit{ImageNet} data set. The metrics reported are the top-1 accuracy and the top-5 accuracy, as it is standard in \textit{Imagenet} benchmarks, at the early stopping epoch. The results are expressed as the average metric $\pm$ the standard error\footnote{It is important to clarify that the standard error of the results shown in the tables is very small because the initial weights in each student are the same across the 5 repetitions, given that the training starts from the pre-trained model weights. The variability reported is produced by stochastic processes other than the initialization, such as dropout or random teacher selection.}.  
 	
 	As it can be seen in the table, the proposed methodology achieves an absolute accuracy increase of up to +3.04\%, +1.00\%, +0.97\% and +0.38\% for the \textit{EfficientNetB0}, \textit{MobileNetV2},  \textit{DenseNet} and \textit{Xception} students, respectively. 
 	
-	We observe that building a teacher by combining ``all'' the pretrained models, or combining the ``top-3'' ones, lead sto similar results. However, in some cases the combination of ``all' the teachers is superior to the ``top-3'' (e.g. \textit{DenseNet121} as student), but also the contrary occurs (e.g. \textit{EfficientNetB0} as student). We also notice that using only the ``best'' model as teacher often leads to overfitting issues.  
+	We observe that building a teacher by combining ``all'' the pre-trained models, or combining the ``top-3'' ones, leads to similar results. However, in some cases the combination of ``all' the teachers is superior to the ``top-3'' (e.g. \textit{DenseNet121} as student), but also the contrary occurs (e.g. \textit{EfficientNetB0} as student). We also notice that using only the ``best'' model as teacher often leads to overfitting issues.  
 	
 	Regarding the teacher combination method, we observe that the ``mean'' and ``random'' methods lead to better results when compared to the ``median'' method. This may be happening because, when using the ``median'' method to combine the teacher predictions, the probability distribution is not preserved (i.e. the output probabilities for every class do not sum to 1), forcing us to apply a posterior normalization step. This process may add some noise to the new distillation target.
 	
@@ -232,31 +234,33 @@
 	\end{tabular}
 	\label{tab:results5}
 \end{table}
+
+	% TODO: \usepackage{graphicx} required
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\linewidth]{img/top1_curves}
+	\caption{Absolute difference of top-1 accuracy with respect to the baseline. The x-axis represents the number of training epochs, and the tuples in the legend are expressed in the following format: (teachers set, combination method). The y-axis shows the absolute difference in performance with respect to the baseline.}
+	\label{fig:top1curves}
+\end{figure}
+
+
+% TODO: \usepackage{graphicx} required
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\linewidth]{img/top5_curves}
+	\caption{Absolute difference of top-5 accuracy with respect to the baseline. The x-axis represents the number of training iterations, and the tuples in the legend are expressed in the following format: (teachers set, combination method). The y-axis shows the absolute difference in performance with respect to the baseline.}
+	\label{fig:top5curves}
+\end{figure}
 	
 	Figures \ref{fig:top1curves} and \ref{fig:top5curves} show the training curves for all the cases. As it can be seen in the figures, although we reported the maximum accuracy achieved by each model, there are models for which the accuracy degrades more than the others if the model is trained for more epochs (for instance this is the general trend of the ``best'' teacher). We hypothesize that this phenomenon may be occurring because when several teachers are combined to build the distillation target, the complexity of the classification task increases and that has, in essence, a regularization effect.
 	
-	In our experiments, we noticed that choosing a very small learning rate was crucial to achieve the performance reported. Higher learning rates ($10^{-5}$ and  $10^{-3}$) were tested leading to worse performances (sometimes even worse than the original pretrained model). However we have not exhaustively studied this phenomenon due to the high resource requirements involved. We could associate this effect to catastrophic forgetting \citep{French99}, which leads to overfitting to the transfer set when the learning rate is too big.
+	In our experiments, we noticed that choosing a very small learning rate was crucial to achieve the performance reported. Higher learning rates ($10^{-5}$ and  $10^{-3}$) were tested leading to worse performances (sometimes even worse than the original pre-trained model). However we have not exhaustively studied this phenomenon due to the high resource requirements involved. We could associate this effect to catastrophic forgetting \citep{French99}, which leads to overfitting to the transfer set when the learning rate is too big.
 			
 			
-	% TODO: \usepackage{graphicx} required
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=1\linewidth]{img/top1_curves}
-		\caption{Absolute difference of top-1 accuracy with respect to the baseline. The x-axis represents the number of training iterations, and the tuples in the legend are expressed in the following format: (teachers set, combination method). The y-axis shows the absolute difference in performance with respect to the baseline.}
-		\label{fig:top1curves}
-	\end{figure}
-	
-			
-		% TODO: \usepackage{graphicx} required
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=1\linewidth]{img/top5_curves}
-		\caption{Absolute difference of top-5 accuracy with respect to the baseline. The x-axis represents the number of training iterations, and the tuples in the legend are expressed in the following format: (teachers set, combination method). The y-axis shows the absolute difference in performance with respect to the baseline.}
-		\label{fig:top5curves}
-	\end{figure}
+
 	
 	\section{Conclusions}  \label{sec:conclusions}
-	We have shown how by using simple knowledge distillation techniques it is possible to increase the accuracy of the smallest pretrained models in just few training epochs. This discovery opens potential new research lines towards more sophisticated teacher blending techniques or distillation methodologies. This can also motivate the research of novel training techniques, alternative or complementary to \textit{backpropagation}, as we empirically demonstrated that the pretrained models still didn't reach their maximum capacity.
+	We have shown how by using simple knowledge distillation techniques, the accuracy of the smallest pre-trained models increase in just few training epochs. This discovery opens potential new research lines towards more sophisticated teacher blending techniques or distillation methodologies. This can also motivate the research of novel training techniques, alternative or complementary to \textit{backpropagation}, as we empirically demonstrated that the pre-trained models still didn't reach their maximum capacity.
 	
 	
 	\section{Acknowledgements}
@@ -265,6 +269,6 @@
 	
 	\bibliography{mybib}
 	
-	% Catastrophic forgetting is usually not a problem in pretrained learning because the target task is different than the original task. It is not the case here. 
+	% Catastrophic forgetting is usually not a problem in pre-trained learning because the target task is different than the original task. It is not the case here. 
 	% Incremental training: parameters of model i are used as initialization for parameters of model i+1
 \end{document}
