@@ -3,6 +3,7 @@ from glob import glob
 from src.paths import get_dataset_path
 from scipy.optimize import bisect
 import os
+import scipy.stats
 from src.utils import to_int
 
 
@@ -188,6 +189,30 @@ def get_combined_soft_targets(models, dataset, prob1, method):
             idx = np.random.randint(0, len(models))
             preds_comb.append(soft_targets[[i], :, idx])
         preds_comb = np.concatenate(preds_comb, axis=0)
+    elif method == "max_entropy":
+        entropy = scipy.stats.entropy(soft_targets, axis=1)
+        teacher_indices = np.argmax(entropy, axis=1)
+        preds_comb = soft_targets[np.arange(soft_targets.shape[0]), :, teacher_indices]
+    elif method == "min_entropy":
+        entropy = scipy.stats.entropy(soft_targets, axis=1)
+        teacher_indices = np.argmin(entropy, axis=1)
+        preds_comb = soft_targets[np.arange(soft_targets.shape[0]), :, teacher_indices]
+    elif method == "max_correlation":
+        teacher_indices = []
+        for x in soft_targets:
+            idx = np.argmax(np.sum(np.corrcoef(x, rowvar=False), axis=1))
+            teacher_indices.append(idx)
+        teacher_indices = np.array(teacher_indices)
+        preds_comb = soft_targets[np.arange(soft_targets.shape[0]), :, teacher_indices]
+    elif method == "min_correlation":
+        teacher_indices = []
+        for x in soft_targets:
+            idx = np.argmin(np.sum(np.corrcoef(x, rowvar=False), axis=1))
+            teacher_indices.append(idx)
+        teacher_indices = np.array(teacher_indices)
+        preds_comb = soft_targets[np.arange(soft_targets.shape[0]), :, teacher_indices]
+    else: 
+        raise ValueError(f"Method '{method}' not recognized.")
 
     filepaths = soft_target["filepaths"]
     accuracy = print_soft_targets_accuracy(preds_comb, filepaths)
